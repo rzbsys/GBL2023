@@ -95,31 +95,34 @@ const LoginPage = () => {
 							onClick={() => {
 								signInWithGoogle()
 									.then((userinfo: any) => {
-										axios
-											.post("/api/auth/login", { uid: userinfo.uid })
-											.then((res) => {
-												SetSnackbarInfo({
-													...SnackbarInfo,
-													open: true,
-													text: "로그인에 성공했습니다.",
-													severity: "success",
-												});
-												userinfo.registered = true;
-												dispatch(login(SerializeUser(userinfo)));
-											})
-											.catch((err) => {
-												if (err.response.data.message === "User not found") {
-													SetSnackbarInfo({
-														...SnackbarInfo,
-														open: true,
-														text: "회원가입페이지로 이동합니다.",
-														severity: "success",
-													});
-													userinfo.registered = false;
-													dispatch(login(SerializeUser(userinfo)));
-												}
-											});
+										dispatch(login(SerializeUser(userinfo)));
+
+										// axios
+										// 	.post("/api/auth/login", { uid: userinfo.uid })
+										// 	.then((res) => {
+										// 		SetSnackbarInfo({
+										// 			...SnackbarInfo,
+										// 			open: true,
+										// 			text: "로그인에 성공했습니다.",
+										// 			severity: "success",
+										// 		});
+										// 		userinfo.registered = true;
+										// 		dispatch(login(SerializeUser(userinfo)));
+										// 	})
+										// 	.catch((err) => {
+										// 		if (err.response.data.message === "User not found") {
+										// 			SetSnackbarInfo({
+										// 				...SnackbarInfo,
+										// 				open: true,
+										// 				text: "회원가입페이지로 이동합니다.",
+										// 				severity: "success",
+										// 			});
+										// 			userinfo.registered = false;
+										// 			dispatch(login(SerializeUser(userinfo)));
+										// 		}
+										// 	});
 									})
+
 									.catch((error: any) => {
 										SetSnackbarInfo({
 											...SnackbarInfo,

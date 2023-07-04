@@ -69,16 +69,18 @@ const RegisterPage = () => {
 	const dispatch = useDispatch();
 	const onSubmit = () => {
 		setloading(true);
-		axios
-			.post("/api/auth/register", {
-				name: AuthState.user.displayName,
-				uid: AuthState.user.uid,
-				profile_image: AuthState.user.photoURL,
-				type: formData,
-			})
-			.then(() => {
-				dispatch(change_type(formData));
-			});
+		dispatch(change_type(formData));
+
+		// axios
+		// 	.post("/api/auth/register", {
+		// 		name: AuthState.user.displayName,
+		// 		uid: AuthState.user.uid,
+		// 		profile_image: AuthState.user.photoURL,
+		// 		type: formData,
+		// 	})
+		// 	.then(() => {
+		// 		dispatch(change_type(formData));
+		// 	});
 	};
 
 	return (

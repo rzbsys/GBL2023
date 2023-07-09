@@ -13,6 +13,7 @@ import InputBase from "@mui/material/InputBase";
 import ProgressBar from "@/components/progressbar";
 
 import withAuth from "@/utils/withAuth";
+import { getBooths } from "@/lib/booth";
 
 const BoothList = () => {
 	const { scrollRef, scrollPosition } = useScroll(0);
@@ -20,6 +21,7 @@ const BoothList = () => {
 	const [progress, Setprogress] = useState(0);
 	const [Loading, SetLoading] = useState(true);
 	const [OpenModal, SetOpenModal] = useState(false);
+	const [boothList, SetboothList] = useState([]);
 	const openQr = () => {
 		SetOpenModal(true);
 	};
@@ -28,7 +30,18 @@ const BoothList = () => {
 		SetOpenModal(false);
 	};
 
+	const refreshBoothList = () => {
+		getBooths().then((res) => {
+			SetboothList(res.data.boothlist);
+		});
+	};
+
 	useEffect(() => {
+		refreshBoothList();
+
+		const getBoothInterval = setInterval(() => {
+			refreshBoothList();
+		}, 5000);
 		if (scrollPosition.scrollTop > 140) {
 			Setscrolled(true);
 		} else {
@@ -39,6 +52,9 @@ const BoothList = () => {
 				(scrollPosition.scrollHeight - scrollPosition.clientHeight)) *
 				100
 		);
+		return () => {
+			clearInterval(getBoothInterval);
+		};
 	}, [scrollPosition]);
 
 	useEffect(() => {
@@ -99,11 +115,14 @@ const BoothList = () => {
 
 				<Slide in={!Loading} direction='up' timeout={400}>
 					<Box>
-						{Array(50)
+						{boothList.map((item, index) => (
+							<BoothItem item={item} key={index}></BoothItem>
+						))}
+						{/* {Array(50)
 							.fill(0)
 							.map((item, index) => (
 								<BoothItem boothid={index} key={index}></BoothItem>
-							))}
+							))} */}
 					</Box>
 				</Slide>
 			</AppLayout>

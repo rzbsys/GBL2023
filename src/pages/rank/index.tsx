@@ -13,12 +13,14 @@ import withAuth from "@/utils/withAuth";
 import useElementHeight from "@/hooks/useElementHeight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter } from "next/router";
+import { getRanks } from "@/lib/rank";
 
 const RankPage = () => {
 	const { scrollRef, scrollPosition } = useScroll(0);
 	const [scrolled, Setscrolled] = useState(false);
 	const [progress, Setprogress] = useState(0);
 	const [Loading, SetLoading] = useState(true);
+	const [Rank, SetRank] = useState([]);
 	const element_height_ref = useElementHeight();
 	const router = useRouter();
 
@@ -36,6 +38,13 @@ const RankPage = () => {
 	}, [scrollPosition]);
 
 	useEffect(() => {
+		getRanks().then((res) => {
+			if (!res.data.ranks) {
+				SetRank([]);
+			} else {
+				SetRank(res.data.ranks);
+			}
+		});
 		SetLoading(false);
 	}, []);
 
@@ -75,45 +84,50 @@ const RankPage = () => {
 
 					<Slide in={!Loading} direction='up' timeout={400}>
 						<Box>
-							{Array(100)
-								.fill(0)
-								.map((item, index) => (
-									<RankItem rank={index + 1} key={index}></RankItem>
-								))}
+							{Rank.map((item, index) => (
+								<RankItem rank={index + 1} item={item} key={index}></RankItem>
+							))}
+							{Rank.length === 0 ? (
+								<Typography
+									fontSize={"20px"}
+									textAlign={"center"}
+									color={"rgb(230, 230, 230)"}
+								>
+									체험자 없음
+								</Typography>
+							) : null}
 						</Box>
 					</Slide>
 					<Box height={"60px"}></Box>
 
-					<Slide in={true} timeout={500} direction='up'>
-						<Button
-							startIcon={<ChevronLeftIcon></ChevronLeftIcon>}
-							variant='text'
-							color='primary'
-							sx={{
-								position: "fixed",
-								bottom: "10px",
+					<Button
+						startIcon={<ChevronLeftIcon></ChevronLeftIcon>}
+						variant='text'
+						color='primary'
+						sx={{
+							position: "absolute",
+							bottom: "10px",
+							bgcolor: "rgb(255, 182, 10)",
+							width: "calc(100% - 40px)",
+							ml: "20px",
+							mb: "10px",
+							height: "50px",
+							borderRadius: "10px",
+							color: "white",
+							"&:hover": {
 								bgcolor: "rgb(255, 182, 10)",
-								width: "calc(100% - 40px)",
-								ml: "20px",
-								mb: "10px",
-								height: "50px",
-								borderRadius: "10px",
-								color: "white",
-								"&:hover": {
-									bgcolor: "rgb(255, 182, 10)",
-								},
-								fontSize: "15px",
-								fontWeight: "900",
-							}}
-							disableElevation
-							disableFocusRipple
-							onClick={() => {
-								router.push("/mypage");
-							}}
-						>
-							뒤로가기
-						</Button>
-					</Slide>
+							},
+							fontSize: "15px",
+							fontWeight: "900",
+						}}
+						disableElevation
+						disableFocusRipple
+						onClick={() => {
+							router.push("/mypage");
+						}}
+					>
+						뒤로가기
+					</Button>
 				</Box>
 			</Box>
 		</>

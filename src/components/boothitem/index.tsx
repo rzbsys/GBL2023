@@ -1,18 +1,18 @@
-import { Box } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import Image from "next/image";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/router";
 import GetMaxLineProperty from "@/utils/linelimit";
 
-const BoothItem = ({ boothid }: { boothid: number }) => {
+const BoothItem = ({ item }: { item: any }) => {
 	const router = useRouter();
-
 	return (
 		<Box
 			component={"div"}
 			onClick={() => {
-				router.push(`/booth/${boothid}`)
+				router.push(`/booth/${item.bid}`);
 			}}
+			position={"relative"}
 			width={"calc(100% - 40px)"}
 			height={"160px"}
 			bgcolor={"rgb(240, 240, 240)"}
@@ -24,7 +24,7 @@ const BoothItem = ({ boothid }: { boothid: number }) => {
 		>
 			<Box position={"relative"} bgcolor={"white"}>
 				<Image
-					src='https://images.velog.io/images/sdb016/post/34bdac57-2d63-43ce-a14c-8054e9e036de/test.png'
+					src={`/getfile/${item.thumbnail_url}`}
 					width={300}
 					height={160}
 					style={{ objectFit: "cover", height: "160px", width: "150px" }}
@@ -38,6 +38,14 @@ const BoothItem = ({ boothid }: { boothid: number }) => {
 				px={"13px"}
 				gap={"10px"}
 			>
+				<Typography
+					variant='subtitle1'
+					fontSize={"15px"}
+					sx={{ lineHeight: "10px !important" }}
+					color={"rgb(150, 150, 150)"}
+				>
+					분야 : {item.part}
+				</Typography>
 				<div style={GetMaxLineProperty(2)}>
 					<Typography
 						variant='h6'
@@ -46,21 +54,27 @@ const BoothItem = ({ boothid }: { boothid: number }) => {
 						width={"100%"}
 						sx={{ lineHeight: "30px !important", color: "rgb(30, 30, 30)" }}
 					>
-						제목제
+						{item.name}
 					</Typography>
 				</div>
 				<div style={GetMaxLineProperty(2)}>
 					<Typography
 						variant='subtitle1'
 						fontSize={"15px"}
-
 						sx={{ lineHeight: "20px !important" }}
 						color={"rgb(150, 150, 150)"}
 					>
-						설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명설명
+						{item.description}
 					</Typography>
 				</div>
 			</Box>
+			<Chip
+				sx={{ position: "absolute", left: "10px", top: "10px" }}
+				variant='filled'
+				size='medium'
+				color={item.complexity ? "warning" : "default"}
+				label={item.complexity ? "진행중" : "체험가능"}
+			/>
 		</Box>
 	);
 };

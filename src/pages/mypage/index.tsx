@@ -12,10 +12,41 @@ import VerticalBoxLayout, {
 	RightTitle,
 } from "@/layouts/verticalbox-layout";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { getUser } from "@/lib/auth";
+import withAuth from "@/utils/withAuth";
 
 const MyPage = () => {
+	interface MyInfoType {
+		total_score: number;
+		time: string;
+		now_rank: number;
+		history: {
+			name: string;
+			score: number;
+		}[];
+	}
+
 	const AuthState = useSelector((state: RootState) => state.auth);
 	const router = useRouter();
+
+	const [MyInfo, SetMyInfo] = useState<MyInfoType>({
+		total_score: 0,
+		time: "0",
+		now_rank: 0,
+		history: [],
+	});
+	useEffect(() => {
+		getUser(AuthState.user.uid).then((res) => {
+			console.log(res.data);
+			if (!res.data.history) {
+				SetMyInfo({ ...res.data, history: [] });
+			} else {
+				SetMyInfo(res.data);
+			}
+		});
+	}, []);
+
 	return (
 		<AppLayout>
 			<Typography
@@ -35,7 +66,9 @@ const MyPage = () => {
 
 				<VerticalBoxLayout>
 					<LeftTitle>총 점수</LeftTitle>
-					<RightTitle color={"rgb(0, 100, 255)"}>800점</RightTitle>
+					<RightTitle color={"rgb(0, 100, 255)"}>
+						{MyInfo.total_score}점
+					</RightTitle>
 				</VerticalBoxLayout>
 			</Box>
 			<Box>
@@ -46,7 +79,7 @@ const MyPage = () => {
 					<RightTitle color={"rgb(255, 165, 81)"}>
 						<Stack alignItems={"end"}>
 							<Typography variant='h5' fontWeight={800}>
-								4등
+								{MyInfo.now_rank}등
 							</Typography>
 							<Button
 								onClick={() => {
@@ -62,79 +95,29 @@ const MyPage = () => {
 			<Box>
 				<CustomDivider label='참여 부스 목록' mt={10}></CustomDivider>
 				<Stack gap={"30px"} direction={"column"} mb={"50px"}>
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
-
-					<VerticalBoxLayout>
-						<LeftTitle>부스명</LeftTitle>
-						<RightTitle color='rgb(39, 196, 89)'>+100점</RightTitle>
-					</VerticalBoxLayout>
+					{MyInfo.history.map((item, index) => {
+						return (
+							<VerticalBoxLayout key={index}>
+								<LeftTitle>{item.name}</LeftTitle>
+								<RightTitle color='rgb(39, 196, 89)'>
+									+{item.score}점
+								</RightTitle>
+							</VerticalBoxLayout>
+						);
+					})}
+					{MyInfo.history.length === 0 ? (
+						<Typography
+							fontSize={"20px"}
+							textAlign={"center"}
+							color={"rgb(230, 230, 230)"}
+						>
+							부스 체험 기록 없음
+						</Typography>
+					) : null}
 				</Stack>
 			</Box>
 		</AppLayout>
 	);
 };
 
-export default MyPage;
+export default withAuth(MyPage);

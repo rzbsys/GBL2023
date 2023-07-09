@@ -1,20 +1,20 @@
 import AppLayout from "@/layouts/app-layout";
-import {
-	Box,
-	Button,
-	Card,
-	CardActions,
-	CardContent,
-	Typography,
-} from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
 import { useRouter } from "next/router";
 import Background from "@/components/background";
+import { useEffect, useState } from "react";
+import { getNotification } from "@/lib/notification";
 
-const AnnounceCard = () => {
+interface NotificationType {
+	title: string;
+	content: string;
+	time: string;
+}
+const AnnounceCard = ({ title, content, time }: NotificationType) => {
 	return (
 		<Card
 			sx={{ mt: "15px", bgcolor: "rgb(250, 250, 250)", borderRadius: "10px" }}
@@ -22,21 +22,21 @@ const AnnounceCard = () => {
 		>
 			<CardContent>
 				<Typography sx={{ fontSize: 10 }} color='text.secondary'>
-					2023년 6월 17일 17시 23분
+					{time}
 				</Typography>
 				<Typography
 					fontSize={"20px"}
 					fontWeight={800}
 					color={"rgb(50, 50, 50)"}
 				>
-					dawdaw
+					{title}
 				</Typography>
 
 				<Typography
 					variant='body2'
 					sx={{ wordBreak: "break-all", color: "rgb(100, 100, 100)" }}
 				>
-					dalwkdakwjdhakwdjhakwduhakwduhakwdjhauwkdajhwduakjwdhauwkdjawhduakwjdhauwkdajwhdauwkd
+					{content}
 				</Typography>
 			</CardContent>
 		</Card>
@@ -46,6 +46,12 @@ const AnnounceCard = () => {
 const AnnouncePage = () => {
 	const AuthState = useSelector((state: RootState) => state.auth);
 	const router = useRouter();
+	const [Notification, SetNotification] = useState<NotificationType[]>([]);
+	useEffect(() => {
+		getNotification().then((res) => {
+			SetNotification(res.data.notifications);
+		});
+	}, []);
 	return (
 		<>
 			<Background></Background>
@@ -65,12 +71,9 @@ const AnnouncePage = () => {
 				</Typography>
 
 				<Box width={"calc(100% - 50px)"} ml={"25px"}>
-					<AnnounceCard></AnnounceCard>
-					<AnnounceCard></AnnounceCard>
-					<AnnounceCard></AnnounceCard>
-					<AnnounceCard></AnnounceCard>
-					<AnnounceCard></AnnounceCard>
-					<AnnounceCard></AnnounceCard>
+					{Notification.map((item, index) => {
+						return <AnnounceCard {...item} key={index}></AnnounceCard>;
+					})}
 				</Box>
 			</AppLayout>
 		</>

@@ -11,20 +11,53 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/utils/firebaseInit";
 import LoadingPage from "@/components/loading";
 import { boothAdminAuth } from "@/lib/auth";
+import CustomSnackBar from "@/components/snackbar";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "@/store/adminauth-slice";
+import { RootState } from "@/store";
 
 const AdminLoaginPage = () => {
 	const [animation, setanimation] = useState(false);
 	const [Password, SetPassword] = useState("");
-	const router = useRouter();
 	const [loading, Setloading] = useState({
 		is_loading: false,
 		msg: "",
 	});
+	const [SnackbarInfo, SetSnackbarInfo] = useState({
+		open: false,
+		text: "",
+		severity: "",
+	});
+	const AdminAuthState = useSelector((state: RootState) => state.adminauth);
+	const dispatch = useDispatch();
+	const router = useRouter();
+
 	useEffect(() => {
 		localStorage.removeItem("auth");
 		signOut(auth);
 		setanimation(true);
+		if (localStorage.getItem("adminauth")) {
+			const password: string = localStorage.getItem("adminauth") ?? "";
+			Setloading({
+				is_loading: true,
+				msg: "자동 로그인중",
+			});
+			boothAdminAuth(password)
+				.then((res) => {
+					dispatch(
+						login({
+							bid: res.data.bid,
+							is_created: res.data.is_created,
+						})
+					);
+				})
+				.catch((err) => {
+					console.log(err);
+					localStorage.clear();
+				});
+		}
 	}, []);
+
 	return (
 		<>
 			{loading.is_loading ? (
@@ -136,9 +169,43 @@ const AdminLoaginPage = () => {
 									msg: "어드민 페이지 로딩중",
 									is_loading: true,
 								});
-								boothAdminAuth(Password).then((res) => {
-									console.log(res);
-								});
+								if (Password === "") {
+									Setloading({
+										...loading,
+										is_loading: false,
+									});
+									SetSnackbarInfo({
+										...SnackbarInfo,
+										open: true,
+										text: "비밀번호를 입력해주세요.",
+										severity: "warning",
+									});
+									return;
+								}
+								boothAdminAuth(Password)
+									.then((res) => {
+										localStorage.setItem("adminauth", Password);
+										dispatch(
+											login({
+												bid: res.data.bid,
+												is_created: res.data.is_created,
+											})
+										);
+									})
+									.catch((err) => {
+										console.log(err);
+										if (err.response.data.message === "Booth not found") {
+											SetSnackbarInfo({
+												...SnackbarInfo,
+												open: true,
+												text: "부스를 찾을 수 없습니다.",
+											});
+											Setloading({
+												...loading,
+												is_loading: false,
+											});
+										}
+									});
 							}}
 						>
 							로그인
@@ -146,6 +213,15 @@ const AdminLoaginPage = () => {
 					</Stack>
 				</Slide>
 			</LoginLayout>
+			<CustomSnackBar
+				{...SnackbarInfo}
+				closefn={() => {
+					SetSnackbarInfo({
+						...SnackbarInfo,
+						open: false,
+					});
+				}}
+			></CustomSnackBar>
 		</>
 	);
 };

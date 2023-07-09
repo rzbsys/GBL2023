@@ -45,7 +45,16 @@ const Profile = ({ displayName, email, photoURL }: ProfileProps) => {
 				>
 					{displayName}
 				</Typography>
-				<Typography mt={"5px"} color={"rgb(200, 200, 200)"} variant='subtitle1'>
+				<Typography
+					mt={"5px"}
+					color={"rgb(200, 200, 200)"}
+					variant='subtitle1'
+					maxWidth={"70%"}
+					textAlign={"right"}
+					sx={{
+						wordBreak: "break-all",
+					}}
+				>
 					{email}
 				</Typography>
 				<Button

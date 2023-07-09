@@ -28,7 +28,9 @@ const useGoogleSignIn = (): UseGoogleSignInResult => {
 	const [error, setError] = useState<SignInError | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const provider = new GoogleAuthProvider();
+	const provider = new GoogleAuthProvider().setCustomParameters({
+		prompt: "select_account",
+	});
 
 	const signInWithGoogle = async (): Promise<any> => {
 		try {
@@ -38,7 +40,7 @@ const useGoogleSignIn = (): UseGoogleSignInResult => {
 			const user = result.user;
 			// if (user.email?.split("@")[1] != "dshs.kr") {
 			// 	signOut(auth);
-			// 	localStorage.removeItem('auth')
+			// 	localStorage.removeItem("auth");
 			// 	throw new Error("대신고등학교 계정으로 로그인해주세요.");
 			// }
 

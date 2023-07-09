@@ -15,8 +15,17 @@ body {
 
 html {
     overflow: hidden;
+
 }
 
 :root {
     --rpv-core__inner-page-background-color: trasparent !important;
+}
+
+@media screen and (min-width: 1024px) {
+    body {
+        position: relative;
+        max-width: 1000px !important;
+        margin-left: calc(50% - 500px) !important;
+    }
 }

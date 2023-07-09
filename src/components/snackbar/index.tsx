@@ -40,7 +40,13 @@ export default function CustomSnackbar({
 				<Alert
 					onClose={handleClose}
 					severity={severity ? severity : "info"}
-					sx={{ width: "100%", ml: "15px", mr: "15px", mt: "20px", borderRadius:"20px" }}
+					sx={{
+						width: "100%",
+						ml: "15px",
+						mr: "15px",
+						mt: "20px",
+						borderRadius: "20px",
+					}}
 				>
 					<AlertTitle>정보</AlertTitle>
 					{text}

@@ -8,7 +8,7 @@ import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import QRCodeReact from "react-qr-code";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { Stack } from "@mui/material";
+import { Stack, useMediaQuery } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import Avartar from "@mui/material/Avatar";
 import CustomCircularProgress from "../circular";
@@ -49,6 +49,7 @@ export default function QRCodePage({
 			uid: AuthState.user.uid,
 		})
 	);
+	const matches = useMediaQuery("(min-width:1024px)");
 
 	return (
 		<>
@@ -58,11 +59,12 @@ export default function QRCodePage({
 						height: `calc(45% + ${drawerBleeding}px)`,
 						overflow: "visible",
 						borderRadius: "30px 30px 0px 0px",
+						maxWidth: "1000px",
+						marginLeft: matches ? "calc(50% - 500px)" : "0px",
 					},
 				}}
 			/>
 			<SwipeableDrawer
-				sx={{ maxWidth: "700px" }}
 				anchor='bottom'
 				open={open}
 				onClose={closeQr}
@@ -71,8 +73,12 @@ export default function QRCodePage({
 				disableRestoreFocus
 				disableSwipeToOpen
 				disableScrollLock
+				elevation={0}
 				ModalProps={{
 					keepMounted: false,
+				}}
+				sx={{
+					zIndex: 3000,
 				}}
 			>
 				<StyledBox
@@ -125,7 +131,10 @@ export default function QRCodePage({
 						<Avartar
 							sx={{
 								width: "23vw",
+								maxWidth: "150px",
 								height: "23vw",
+								maxHeight: "150px",
+
 								mb: "20px",
 								fontSize: "30px",
 							}}
@@ -133,7 +142,13 @@ export default function QRCodePage({
 						>
 							{AuthState.user.displayName[0]}
 						</Avartar>
-						<Typography variant='h6' fontWeight={800}>
+						<Typography
+							variant='h6'
+							fontWeight={800}
+							sx={{
+								wordBreak: "break-all",
+							}}
+						>
 							{AuthState.user.displayName}
 						</Typography>
 						<Typography
@@ -141,6 +156,9 @@ export default function QRCodePage({
 							variant='body1'
 							fontSize={"15px"}
 							color={"rgb(200, 200, 200)"}
+							sx={{
+								wordBreak: "break-all",
+							}}
 						>
 							{AuthState.user.email}
 						</Typography>

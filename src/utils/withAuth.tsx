@@ -10,7 +10,6 @@ const withAuth = (Component: NextPage | React.FC) => {
 		if (!AuthState.logined) {
 			return <LoginPage></LoginPage>;
 		} else if (!AuthState.user.registered) {
-			console.log(AuthState.user);
 			return <RegisterPage></RegisterPage>;
 		}
 		return <Component />;

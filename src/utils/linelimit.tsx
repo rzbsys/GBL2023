@@ -3,6 +3,7 @@ const GetMaxLineProperty = (maxline: number) => {
 		display: "-webkit-box",
 		WebkitBoxOrient: "vertical",
 		overflow: "hidden",
+		wordBreak: "break-all",
 		textOverflow: "ellipsis",
 		WebkitLineClamp: maxline,
 	};

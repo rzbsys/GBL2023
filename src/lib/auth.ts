@@ -7,3 +7,8 @@ export const boothAdminAuth = (pw: string) => {
 
 	return res;
 };
+
+export const getUser = (uid: string) => {
+	const res = axios.get(`/api/user/${uid}`);
+	return res;
+};

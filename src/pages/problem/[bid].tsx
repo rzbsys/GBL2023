@@ -13,14 +13,19 @@ import {
 	Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, Fragment, useEffect, useState } from "react";
 import Background from "@/components/background";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper.min.css";
 import CustomizedSteppers from "@/components/stepper";
 import PdfViwer from "@/components/pdfviwer";
+import { getBooth } from "@/lib/booth";
+import { getProblem, submitAnswer } from "@/lib/problems";
+import LoadingPage from "@/components/loading";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
-const PDFPage = () => {
+const PdfComponent = ({ src, step }: { src: string; step: number }) => {
 	const element_height_ref = useElementHeight();
 
 	return (
@@ -32,7 +37,7 @@ const PDFPage = () => {
 				fontWeight={900}
 				color={"rgb(230, 230, 230)"}
 			>
-				STEP1
+				STEP{step * 2 + 1}
 			</Typography>
 			<Typography
 				fontSize={"25px"}
@@ -44,12 +49,42 @@ const PDFPage = () => {
 			>
 				아래 PDF를 참고하여 기본 개념을 학습하세요.
 			</Typography>
-			<PdfViwer fileUrl='/pdf-test.pdf'></PdfViwer>
+			{src === "" ? (
+				<Box
+					sx={{
+						width: "calc(100% - 100px)",
+						px: "30px",
+						py: "20px",
+						ml: "20px",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						borderRadius: "10px",
+						bgcolor: "rgb(240, 240, 240)",
+					}}
+				>
+					PDF파일이 없습니다.
+				</Box>
+			) : (
+				<PdfViwer fileUrl={`/getfile/${src}`}></PdfViwer>
+			)}
 		</Box>
 	);
 };
 
-const SolvePage = () => {
+const SolveComponent = ({
+	step,
+	question,
+	score,
+	value,
+	onChange,
+}: {
+	step: number;
+	question: string;
+	score: number;
+	value: string;
+	onChange: any;
+}) => {
 	const element_height_ref = useElementHeight();
 
 	return (
@@ -61,7 +96,7 @@ const SolvePage = () => {
 				fontWeight={900}
 				color={"rgb(230, 230, 230)"}
 			>
-				STEP2
+				STEP{step * 2 + 2}
 			</Typography>
 			<Typography
 				fontSize={"25px"}
@@ -70,7 +105,7 @@ const SolvePage = () => {
 				fontWeight={900}
 				color={"rgb(50, 50, 50)"}
 			>
-				다음 중 올바르지 않는 것은 무엇인가요?
+				{question ? question : "정해진 문제가 존재하지 않습니다."}
 			</Typography>
 			<Typography
 				fontSize={"15px"}
@@ -80,11 +115,13 @@ const SolvePage = () => {
 				fontWeight={800}
 				color={"rgb(150, 150, 150)"}
 			>
-				배점 : 30점
+				배점 : {score}점
 			</Typography>
 			<TextField
 				label='답을 입력하세요.'
 				variant='outlined'
+				onChange={onChange}
+				value={value}
 				sx={{
 					bgcolor: "rgb(240, 240, 240)",
 					width: "calc(100% - 50px)",
@@ -97,56 +134,7 @@ const SolvePage = () => {
 					mt: "40px",
 				}}
 				fullWidth
-				InputProps={{
-					disableUnderline: true,
-				}}
 			/>
-			<Box
-				sx={{
-					bgcolor: "rgb(240, 240, 240)",
-					width: "calc(100% - 80px)",
-					ml: "25px",
-					px: "15px",
-					py: "15px",
-					mt: "20px",
-					borderRadius: "10px",
-				}}
-			>
-				<FormControl>
-					<RadioGroup
-						aria-labelledby='demo-radio-buttons-group-label'
-						defaultValue='female'
-						name='radio-buttons-group'
-						sx={{ gap: "15px" }}
-					>
-						<FormControlLabel
-							value='1'
-							control={<Radio />}
-							label='1번 : ㅁㅈㅇㅁㅈ'
-						/>
-						<FormControlLabel
-							value='2'
-							control={<Radio />}
-							label='2번 : ㅁㅈㅇㅁㅈㅁㅈㅇㅁㅈㅁㅈㅇㅁㅈㅁㅈㅇㅁㅈㅁㅈㅇㅁㅈ'
-						/>
-						<FormControlLabel
-							value='3'
-							control={<Radio />}
-							label='3번 : ㅁㅈㅇㅁㅈ'
-						/>
-						<FormControlLabel
-							value='4'
-							control={<Radio />}
-							label='4번 : ㅁㅈㅇㅁㅈ'
-						/>
-						<FormControlLabel
-							value='5'
-							control={<Radio />}
-							label='5번 : ㅁㅈㅇㅁㅈ'
-						/>
-					</RadioGroup>
-				</FormControl>
-			</Box>
 		</Box>
 	);
 };
@@ -186,16 +174,62 @@ const CustomButton = ({
 };
 
 function ProblemPage() {
+	interface ProblemType {
+		answer: string;
+		bid: string;
+		pdf_url: string;
+		problem_type: string;
+		question: string;
+		score: number;
+	}
+
 	const element_height_ref = useElementHeight();
-	const router = useRouter();
-	const { pid } = router.query;
 	const [SwiperInstance, setSwiperInstance] = useState<any>(null);
 	const [PageNum, SetPageNum] = useState(0);
-	const [MaxPage, SetMaxPage] = useState(0);
+	const AuthState = useSelector((state: RootState) => state.auth);
+	const [BoothInfo, SetBoothInfo] = useState({
+		name: "",
+	});
+
+	const [ProblemsInfo, SetProblemsInfo] = useState<ProblemType[]>([]);
+	const [AnswerList, SetAnswerList] = useState<string[]>([]);
+	const router = useRouter();
+	const { bid } = router.query;
+
+	const [loading, Setloading] = useState({
+		is_loading: true,
+		msg: "문제정보를 불러오는중입니다.",
+	});
+
+	const refreshBoothInfo = (bid: string) => {
+		getBooth(bid).then((res) => {
+			SetBoothInfo(res.data);
+		});
+	};
+
+	const refreshProblemsInfo = (bid: string) => {
+		getProblem(bid).then((res) => {
+			SetProblemsInfo(res.data.problems);
+			Setloading({
+				...loading,
+				is_loading: false,
+			});
+			SetAnswerList(Array(res.data.problems.length).fill(""));
+		});
+	};
+
+	useEffect(() => {
+		if (!bid) {
+			return;
+		} else {
+			refreshProblemsInfo(bid as string);
+			refreshBoothInfo(bid as string);
+		}
+	}, [bid]);
 
 	useEffect(() => {
 		if (PageNum === -1) {
-			router.push(`/booth/${pid}`);
+			router.push(`/booth/${bid}`);
 		}
 		if (SwiperInstance !== null) {
 			SwiperInstance.slideTo(PageNum);
@@ -204,9 +238,16 @@ function ProblemPage() {
 
 	return (
 		<>
+			{loading.is_loading ? (
+				<LoadingPage msg={loading.msg}></LoadingPage>
+			) : null}
+
 			<Fade in={PageNum !== 0}>
 				<Box>
-					<CustomizedSteppers maxstep={5} now={PageNum}></CustomizedSteppers>
+					<CustomizedSteppers
+						maxstep={ProblemsInfo.length * 2 + 1}
+						now={PageNum}
+					></CustomizedSteppers>
 				</Box>
 			</Fade>
 
@@ -239,16 +280,32 @@ function ProblemPage() {
 							fontWeight={900}
 							color={"rgb(50, 50, 50)"}
 						>
-							부스이름부스이름부스이름부스이름부스이름부스이름부스이름부스이
+							{BoothInfo.name}
 						</Typography>
 					</Box>
 				</SwiperSlide>
-				<SwiperSlide>
-					<PDFPage></PDFPage>
-				</SwiperSlide>
-				<SwiperSlide>
-					<SolvePage></SolvePage>
-				</SwiperSlide>
+				{ProblemsInfo.map((item, index) => {
+					return (
+						<Fragment key={index}>
+							<SwiperSlide key={index + "a"}>
+								<PdfComponent step={index} src={item.pdf_url}></PdfComponent>
+							</SwiperSlide>
+							<SwiperSlide key={index + "b"}>
+								<SolveComponent
+									value={AnswerList[index]}
+									onChange={(e: ChangeEvent<HTMLInputElement>) => {
+										let temp = [...AnswerList];
+										temp[index] = e.target.value;
+										SetAnswerList(temp);
+									}}
+									step={index}
+									question={item.question}
+									score={item.score}
+								></SolveComponent>
+							</SwiperSlide>
+						</Fragment>
+					);
+				})}
 			</Swiper>
 			<Stack
 				direction={"row"}
@@ -256,7 +313,7 @@ function ProblemPage() {
 				px={"20px"}
 				width={"calc(100% - 40px)"}
 				gap={"15px"}
-				position={"fixed"}
+				position={"absolute"}
 				bottom={"20px"}
 				zIndex={1000}
 			>
@@ -270,9 +327,28 @@ function ProblemPage() {
 					}}
 				></CustomButton>
 				<CustomButton
-					text='다음'
+					text={PageNum === ProblemsInfo.length * 2 ? "제출하기" : "다음"}
 					onClick={() => {
-						SetPageNum(PageNum + 1);
+						if (PageNum === ProblemsInfo.length * 2) {
+							if (confirm("답안을 제출하시겠습니까?")) {
+								Setloading({
+									...loading,
+									is_loading: true,
+									msg: "답안 제출중",
+								});
+								submitAnswer(
+									bid as string,
+									AuthState.user.uid,
+									AnswerList
+								).then((res) => {
+									console.log(res);
+									alert("채점이 완료되었습니다.");
+									router.push("/booth");
+								});
+							}
+						} else {
+							SetPageNum(PageNum + 1);
+						}
 					}}
 				></CustomButton>
 			</Stack>

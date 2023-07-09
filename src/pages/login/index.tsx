@@ -32,6 +32,9 @@ const LoginPage = () => {
 
 	useEffect(() => {
 		setanimation(true);
+		if (localStorage.getItem("adminauth")) {
+			router.push("/admin/dashboard");
+		}
 	}, []);
 
 	return (
@@ -73,7 +76,7 @@ const LoginPage = () => {
 						disableTouchRipple
 						disableFocusRipple
 						onClick={() => {
-							router.push("/admin");
+							router.push("/admin/dashboard");
 						}}
 					>
 						관리자 페이지 바로가기
@@ -97,30 +100,30 @@ const LoginPage = () => {
 									.then((userinfo: any) => {
 										dispatch(login(SerializeUser(userinfo)));
 
-										// axios
-										// 	.post("/api/auth/login", { uid: userinfo.uid })
-										// 	.then((res) => {
-										// 		SetSnackbarInfo({
-										// 			...SnackbarInfo,
-										// 			open: true,
-										// 			text: "로그인에 성공했습니다.",
-										// 			severity: "success",
-										// 		});
-										// 		userinfo.registered = true;
-										// 		dispatch(login(SerializeUser(userinfo)));
-										// 	})
-										// 	.catch((err) => {
-										// 		if (err.response.data.message === "User not found") {
-										// 			SetSnackbarInfo({
-										// 				...SnackbarInfo,
-										// 				open: true,
-										// 				text: "회원가입페이지로 이동합니다.",
-										// 				severity: "success",
-										// 			});
-										// 			userinfo.registered = false;
-										// 			dispatch(login(SerializeUser(userinfo)));
-										// 		}
-										// 	});
+										axios
+											.post("/api/auth/login", { uid: userinfo.uid })
+											.then((res) => {
+												SetSnackbarInfo({
+													...SnackbarInfo,
+													open: true,
+													text: "로그인에 성공했습니다.",
+													severity: "success",
+												});
+												userinfo.registered = true;
+												dispatch(login(SerializeUser(userinfo)));
+											})
+											.catch((err) => {
+												if (err.response.data.message === "User not found") {
+													SetSnackbarInfo({
+														...SnackbarInfo,
+														open: true,
+														text: "회원가입페이지로 이동합니다.",
+														severity: "success",
+													});
+													userinfo.registered = false;
+													dispatch(login(SerializeUser(userinfo)));
+												}
+											});
 									})
 
 									.catch((error: any) => {

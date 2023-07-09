@@ -12,6 +12,9 @@ import VerticalBoxLayout, {
 	LeftTitle,
 	RightTitle,
 } from "@/layouts/verticalbox-layout";
+import { getBooth, getCheck } from "@/lib/booth";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const BoothDetail = () => {
 	const router = useRouter();
@@ -19,6 +22,32 @@ const BoothDetail = () => {
 	const element_height_ref = useElementHeight();
 	const [Scrolled, SetScrolled] = useState(false);
 	const { scrollRef, scrollPosition } = useScroll(0);
+	const [BoothInfo, SetBoothInfo] = useState<any>({});
+	const [inParticipate, SetinParticipate] = useState(0);
+	const [inAdded, SetinAdded] = useState(0);
+	const AuthState = useSelector((state: RootState) => state.auth);
+
+	useEffect(() => {
+		console.log(inAdded, inParticipate);
+	}, [inAdded, inParticipate]);
+
+	const refreshBoothInfo = (booth_id: string) => {
+		getBooth(booth_id as string).then((res) => {
+			SetBoothInfo(res.data);
+			if (res.data.uids === null) {
+				SetinParticipate(1);
+			} else {
+				res.data.uids.map((item: string, index: number) => {
+					console.log(item, AuthState.user.uid);
+					if (item === AuthState.user.uid) {
+						SetinParticipate(2);
+						return 0;
+					}
+				});
+			}
+			console.log(res.data);
+		});
+	};
 
 	useEffect(() => {
 		if (scrollPosition.scrollTop > 3) {
@@ -27,6 +56,22 @@ const BoothDetail = () => {
 			SetScrolled(false);
 		}
 	}, [scrollPosition]);
+
+	useEffect(() => {
+		if (!bid) {
+			return;
+		} else {
+			getCheck(AuthState.user.uid, bid as string).then((res) => {
+				console.log(res.data);
+				if (res.data.participate === true) {
+					SetinAdded(1);
+				} else {
+					SetinAdded(2);
+				}
+			});
+			refreshBoothInfo(bid as string);
+		}
+	}, [bid]);
 
 	return (
 		<Box ref={element_height_ref} overflow={"hidden"}>
@@ -56,17 +101,19 @@ const BoothDetail = () => {
 					>
 						GBL2023
 					</Typography>
-					<Image
-						fill
-						style={{
-							objectFit: "cover",
-							filter: "brightness(70%)",
-							transition: "0.3s",
-							opacity: Scrolled ? "0" : "1",
-						}}
-						alt='BoothImage'
-						src='https://cdn.pixabay.com/photo/2020/09/09/02/12/smearing-5556288_1280.jpg'
-					></Image>
+					{BoothInfo.thumbnail_url !== undefined ? (
+						<Image
+							fill
+							style={{
+								objectFit: "cover",
+								filter: "brightness(70%)",
+								transition: "0.3s",
+								opacity: Scrolled ? "0" : "1",
+							}}
+							alt='BoothImage'
+							src={`/getfile/${BoothInfo.thumbnail_url}`}
+						></Image>
+					) : null}
 					<Toolbar
 						sx={{
 							marginBottom: "10px",
@@ -88,7 +135,7 @@ const BoothDetail = () => {
 									transition: "0.3s",
 								}}
 							>
-								부스 목록부스 목록부스 목록부스 목록부스
+								{BoothInfo.name}
 							</Typography>
 						</div>
 					</Toolbar>
@@ -110,8 +157,7 @@ const BoothDetail = () => {
 					color='rgb(100, 100, 100)'
 					borderRadius={"10px"}
 				>
-					부스, 소개부스, 소개부스, 소개부스, 소개부스, 소개부스, 소개부스,
-					소개부스, 소개
+					{BoothInfo.description}
 				</Typography>
 
 				<Typography variant='h6' fontWeight={800} ml={"20px"} mt={"30px"}>
@@ -119,7 +165,7 @@ const BoothDetail = () => {
 				</Typography>
 
 				<video
-					src='http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+					src={`/getfile/${BoothInfo.video_url}`}
 					style={{
 						width: "calc(100% - 50px)",
 						marginLeft: "25px",
@@ -139,14 +185,22 @@ const BoothDetail = () => {
 				<Box mt={"20px"}>
 					<VerticalBoxLayout>
 						<LeftTitle>부스 혼잡도</LeftTitle>
-						<RightTitle color={"rgb(0, 100, 255)"}>혼잡</RightTitle>
+						<RightTitle
+							color={
+								BoothInfo.complexity === 0
+									? "rgb(0, 100, 255)"
+									: "rgb(255, 68, 0)"
+							}
+						>
+							{BoothInfo.complexity === 0 ? "체험 가능" : "체험 진행중"}
+						</RightTitle>
 					</VerticalBoxLayout>
 				</Box>
 
 				<Box mt={"20px"}>
 					<VerticalBoxLayout>
-						<LeftTitle>체험 인원수</LeftTitle>
-						<RightTitle color={"rgb(255, 149, 0)"}>5명</RightTitle>
+						<LeftTitle>부스 분야</LeftTitle>
+						<RightTitle color={"rgb(255, 149, 0)"}>{BoothInfo.part}</RightTitle>
 					</VerticalBoxLayout>
 				</Box>
 
@@ -155,7 +209,7 @@ const BoothDetail = () => {
 					width={"calc(100% - 40px)"}
 					ml={"20px"}
 					direction={"row"}
-					position={"fixed"}
+					position={"sticky"}
 					bottom={"15px"}
 					height={"50px"}
 					gap={"15px"}
@@ -165,7 +219,6 @@ const BoothDetail = () => {
 						sx={{
 							bgcolor: "rgb(240, 240, 240)",
 							borderRadius: "10px",
-							color: "#ffd400",
 							fontSize: "16px",
 							"&:hover": {
 								bgcolor: "rgb(240, 240, 240)",
@@ -179,25 +232,26 @@ const BoothDetail = () => {
 					>
 						부스목록
 					</Button>
-					<Button
-						fullWidth
-						disableRipple
-						sx={{
-							bgcolor: "#ffd400",
-							borderRadius: "10px",
-							color: "white",
-							fontSize: "16px",
-							fontWeight: "900",
-							"&:hover": {
-								bgcolor: "#ffd400",
-							},
-						}}
-						onClick={() => {
-							router.push(`/problem/${bid}`);
-						}}
-					>
-						문제풀기
-					</Button>
+					{inParticipate === 1 && inAdded === 1 ? (
+						<Button
+							fullWidth
+							disableRipple
+							variant='contained'
+							color='primary'
+							disableElevation
+							sx={{
+								borderRadius: "10px",
+								color: "white",
+								fontSize: "16px",
+								fontWeight: "900",
+							}}
+							onClick={() => {
+								router.push(`/problem/${bid}`);
+							}}
+						>
+							문제풀기
+						</Button>
+					) : null}
 				</Stack>
 			</Box>
 		</Box>

@@ -24,10 +24,13 @@ const ToolbarSlotsExample: React.FC<ToolbarSlotsExampleProps> = ({
 			className='rpv-core__viewer'
 			style={{
 				display: "flex",
-				width: "100vw",
+				width: "calc(100% - 40px)",
+				marginLeft: "20px",
 				// justifyContent: "center",
 				flexDirection: "column",
 				height: "calc(100% - 250px)",
+				backgroundColor: "rgb(250, 250, 250)",
+				borderRadius: "10px",
 			}}
 		>
 			<div
@@ -38,7 +41,7 @@ const ToolbarSlotsExample: React.FC<ToolbarSlotsExampleProps> = ({
 					display: "flex",
 					padding: "4px",
 					width: "200px",
-					position: "fixed",
+					position: "absolute",
 					bottom: "100px",
 					zIndex: 1001,
 					left: "calc(50% - 100px)",

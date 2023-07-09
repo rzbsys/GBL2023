@@ -23,7 +23,14 @@ const NavBar = () => {
 		router.push(newValue);
 	};
 	return (
-		<Box sx={{ width: "100%" }} position={"absolute"} bottom={0}>
+		<Box
+			sx={{
+				width: "100%",
+				maxWidth: "1000px",
+				height: nav_height + "px",
+			}}
+			position={"absolute"}
+		>
 			<Box
 				width={"100%"}
 				position={"absolute"}
@@ -45,8 +52,12 @@ const NavBar = () => {
 				value={value}
 				onChange={handleChange}
 				sx={{
+					backgroundColor: "red",
+					width: "100%",
+					bottom: `-${nav_height}px`,
 					height: nav_height,
 					bgcolor: nav_color,
+					zIndex: 200,
 				}}
 			>
 				<BottomNavigationAction

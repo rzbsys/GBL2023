@@ -71,16 +71,16 @@ const RegisterPage = () => {
 		setloading(true);
 		dispatch(change_type(formData));
 
-		// axios
-		// 	.post("/api/auth/register", {
-		// 		name: AuthState.user.displayName,
-		// 		uid: AuthState.user.uid,
-		// 		profile_image: AuthState.user.photoURL,
-		// 		type: formData,
-		// 	})
-		// 	.then(() => {
-		// 		dispatch(change_type(formData));
-		// 	});
+		axios
+			.post("/api/auth/register", {
+				name: AuthState.user.displayName,
+				uid: AuthState.user.uid,
+				profile_image: AuthState.user.photoURL,
+				type: formData,
+			})
+			.then(() => {
+				dispatch(change_type(formData));
+			});
 	};
 
 	return (
@@ -139,7 +139,7 @@ const RegisterPage = () => {
 						width: "calc(100% - 40px)",
 						ml: "20px",
 						borderRadius: "10px",
-						position: "fixed",
+						position: "absolute",
 						bottom: "20px",
 					}}
 				>

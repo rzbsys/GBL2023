@@ -38,7 +38,7 @@ export default function CustomizedSteppers(props: CustomizedSteppers) {
 			activeStep={props.now}
 			connector={<QontoConnector />}
 			sx={{
-				position: "fixed",
+				position: "absolute",
 				width: "calc(100% - 50px)",
 				left: "25px",
 				top: "20px",

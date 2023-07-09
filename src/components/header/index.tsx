@@ -21,7 +21,7 @@ function Header({
 	return (
 		<>
 			{disableQR ? null : (
-				<Box position={"fixed"} top={20} right={20} zIndex={2001}>
+				<Box position={"absolute"} top={20} right={20} zIndex={1500}>
 					<Button
 						variant='contained'
 						disableElevation

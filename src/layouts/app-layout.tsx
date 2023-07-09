@@ -15,14 +15,11 @@ export default function AppLayout({ children, scroll_ref }: AppLayoutProps) {
 	const element_height_ref = useElementHeight(nav_height);
 
 	return (
-		<Box
-			ref={element_height_ref}
-			overflow={"hidden"}
-			sx={{ borderBottomLeftRadius: "20px", borderBottomRightRadius: "20px" }}
-		>
-			<Box width={"100%"} height={'100%'} ref={scroll_ref} overflow={"scroll"}>{children}</Box>
+		<Box position={"relative"} pb={nav_height + "px"} ref={element_height_ref}>
+			<Box width={"100%"} height={"100%"} ref={scroll_ref} overflow={"scroll"}>
+				{children}
+			</Box>
 			<NavBar></NavBar>
-
 		</Box>
 	);
 }

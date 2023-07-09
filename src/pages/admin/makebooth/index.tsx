@@ -13,13 +13,14 @@ import Background from "@/components/background";
 import Stack from "@mui/material/Stack";
 import { useState } from "react";
 import LoadingPage from "@/components/loading";
-import axios from "axios";
 import CustomSnackBar from "@/components/snackbar";
 import { fileUpload } from "@/lib/upload";
 import { makeBooth } from "@/lib/booth";
-import withAdminAuth from "@/utils/withAdminAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { create } from "@/store/adminauth-slice";
 
-const CustomFileInput = ({
+export const CustomFileInput = ({
 	text,
 	name,
 	onChange,
@@ -36,13 +37,12 @@ const CustomFileInput = ({
 		const maxSize = 50 * 1024 * 1024;
 
 		const file = event.target.files?.[0];
-
 		if (file) {
 			if (file.size > maxSize) {
 				alert("파일 용량이 50MB를 넘을 수 없습니다.");
 				event.target.value = "";
 			} else {
-				if (!file.type.startsWith(filetype)) {
+				if (file.type.search(filetype) === -1) {
 					alert(
 						filetype + "에 해당하는 파일이 아닙니다. 파일을 다시 선택해주세요."
 					);
@@ -77,10 +77,11 @@ const CustomFileInput = ({
 	);
 };
 
-const CustomInput = ({
+export const CustomInput = ({
 	text,
 	multiline = false,
 	name,
+	type = "text",
 	...args
 }: {
 	text: string;
@@ -88,6 +89,7 @@ const CustomInput = ({
 	name: string;
 	value: any;
 	onChange: any;
+	type?: string;
 }) => {
 	return (
 		<TextField
@@ -97,6 +99,7 @@ const CustomInput = ({
 			maxRows={multiline ? 6 : 1}
 			required
 			name={name}
+			type={type}
 			{...args}
 			sx={{
 				bgcolor: "rgb(240, 240, 240)",
@@ -112,7 +115,7 @@ const CustomInput = ({
 	);
 };
 
-const CustomSelect = ({
+export const CustomSelect = ({
 	options,
 	name,
 	label,
@@ -189,6 +192,8 @@ const MakeBoothPage = () => {
 		is_loading: false,
 		msg: "",
 	});
+	const AdminAuthState = useSelector((state: RootState) => state.adminauth);
+	const dispatch = useDispatch();
 
 	const validateData = (): string[] => {
 		let emptyFields: string[] = [];
@@ -221,14 +226,12 @@ const MakeBoothPage = () => {
 			...prevFormData,
 			thumbnail: file,
 		}));
-		console.log(fileList);
 	};
 	const handleVideoFileUpload = async (file: File) => {
 		SetfileList((prevFormData: any) => ({
 			...prevFormData,
 			video: file,
 		}));
-		console.log(fileList);
 	};
 
 	const ErrHandlering = (err: any) => {
@@ -252,7 +255,6 @@ const MakeBoothPage = () => {
 		});
 		const valid_res = validateData();
 		if (valid_res.length !== 0) {
-			console.log(valid_res);
 			Setloading({
 				...loading,
 				is_loading: false,
@@ -280,28 +282,34 @@ const MakeBoothPage = () => {
 
 			fileUpload(ThumbnailformData, (percent: number) => {
 				Setloading({
-					...loading,
 					msg: `이미지 업로드중입니다. ${percent}%`,
+					is_loading: true,
 				});
 			})
-				.then((res) => {
-					fileUrl.thumbnail = res.data.file;
+				.then((res_thumbnail) => {
+					fileUrl.thumbnail = res_thumbnail.data.file;
 					fileUpload(VideoformData, (percent: number) => {
+						console.log(percent);
 						Setloading({
-							...loading,
 							msg: `동영상 업로드중입니다. ${percent}%`,
+							is_loading: true,
 						});
 					})
-						.then((res) => {
-							fileUrl.video = res.data.file;
+						.then((res_video) => {
+							fileUrl.video = res_video.data.file;
+							Setloading({
+								msg: `부스를 만드는중입니다.`,
+								is_loading: true,
+							});
 							makeBooth({
+								bid: AdminAuthState.bid,
 								name: formData.boothName,
 								description: formData.boothDescription,
 								video_url: fileUrl.video,
 								thumbnail_url: fileUrl.thumbnail,
 								part: formData.boothField,
 							}).then((res) => {
-								console.log(res);
+								dispatch(create());
 							});
 						})
 						.catch((err) => {
@@ -325,8 +333,9 @@ const MakeBoothPage = () => {
 					});
 				}}
 			></CustomSnackBar>
+
 			{loading.is_loading ? (
-				<LoadingPage msg='부스를 만드는 중입니다.'></LoadingPage>
+				<LoadingPage msg={loading.msg}></LoadingPage>
 			) : null}
 			<Background></Background>
 			<Box ref={element_height_ref} overflow={"scroll"}>
@@ -363,7 +372,7 @@ const MakeBoothPage = () => {
 					></CustomInput>
 					<CustomInput
 						name='boothDescription'
-						text='부스 설명'
+						text='필요역량'
 						value={formData.boothDescription}
 						multiline
 						onChange={handleChange}
@@ -416,7 +425,8 @@ const MakeBoothPage = () => {
 						width: "calc(100% - 40px)",
 						ml: "20px",
 						borderRadius: "10px",
-						position: "fixed",
+						position: "absolute",
+						zIndex: 10,
 						bottom: "20px",
 					}}
 				>
@@ -427,4 +437,4 @@ const MakeBoothPage = () => {
 	);
 };
 
-export default withAdminAuth(MakeBoothPage);
+export default MakeBoothPage;

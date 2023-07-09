@@ -26,8 +26,11 @@ const AdminAuthSlice = createSlice({
 			state.bid = "";
 			state.is_created = false;
 		},
+		create: (state) => {
+			state.is_created = true;
+		},
 	},
 });
 
 export default AdminAuthSlice;
-export const { login, logout } = AdminAuthSlice.actions;
+export const { login, logout, create } = AdminAuthSlice.actions;

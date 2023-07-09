@@ -53,7 +53,6 @@ const requestPermission = async () => {
 
 const MyApp = ({ Component, pageProps }: MyAppProps) => {
 	const ProgressState = useProgress();
-
 	useEffect(() => {
 		requestPermission();
 	}, []);

@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useRouter } from "next/router";
 import GetMaxLineProperty from "@/utils/linelimit";
 
-const RankItem = ({ rank }: { rank: number }) => {
+const RankItem = ({ rank, item }: { rank: number; item: any }) => {
 	const router = useRouter();
 
 	return (
@@ -17,8 +17,33 @@ const RankItem = ({ rank }: { rank: number }) => {
 			display={"flex"}
 			overflow={"hidden"}
 		>
-			<Stack position={"relative"} bgcolor={"rgb(250, 250, 250)"} alignItems={"center"} justifyContent={"center"}>
-				<Typography width={"80px"} textAlign={"center"} variant="body1" color="initial" fontWeight={800}>{rank}등</Typography>
+			<Stack
+				position={"relative"}
+				bgcolor={"rgb(250, 250, 250)"}
+				alignItems={"center"}
+				justifyContent={"center"}
+			>
+				<Typography
+					width={"80px"}
+					textAlign={"center"}
+					variant='body1'
+					color='initial'
+					fontWeight={800}
+				>
+					{rank}등
+				</Typography>
+				<Typography
+					width={"80px"}
+					textAlign={"center"}
+					variant='body1'
+					color='initial'
+					sx={{
+						opacity: 0.4,
+					}}
+					fontWeight={800}
+				>
+					{item.score}점
+				</Typography>
 			</Stack>
 			<Box
 				display={"flex"}
@@ -35,7 +60,7 @@ const RankItem = ({ rank }: { rank: number }) => {
 						width={"100%"}
 						sx={{ lineHeight: "30px !important", color: "rgb(30, 30, 30)" }}
 					>
-						전민국
+						{item.name}
 					</Typography>
 				</div>
 				<div style={GetMaxLineProperty(1)}>
@@ -45,7 +70,7 @@ const RankItem = ({ rank }: { rank: number }) => {
 						sx={{ lineHeight: "20px !important" }}
 						color={"rgb(150, 150, 150)"}
 					>
-						마지막 부스명 ㅇ맞어ㅗ맞어모아ㅓ모아
+						{item.last_booth_name}
 					</Typography>
 				</div>
 			</Box>

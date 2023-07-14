@@ -63,6 +63,7 @@ const MyApp = ({ Component, pageProps }: MyAppProps) => {
 				<Head>
 					<title>GBL2023</title>
 					<link rel='shortcut icon' href='/favicon.ico' />
+					<link rel='manifest' href='/manifest.json' />
 				</Head>
 				{ProgressState ? <LoadingPage></LoadingPage> : null}
 				<AuthProvider>

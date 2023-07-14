@@ -15,6 +15,7 @@ import VerticalBoxLayout, {
 import { getBooth, getCheck } from "@/lib/booth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { getUser } from "@/lib/auth";
 
 const BoothDetail = () => {
 	const router = useRouter();
@@ -27,25 +28,38 @@ const BoothDetail = () => {
 	const [inAdded, SetinAdded] = useState(0);
 	const AuthState = useSelector((state: RootState) => state.auth);
 
-	useEffect(() => {
-		console.log(inAdded, inParticipate);
-	}, [inAdded, inParticipate]);
-
 	const refreshBoothInfo = (booth_id: string) => {
 		getBooth(booth_id as string).then((res) => {
+			console.log(res.data);
+
 			SetBoothInfo(res.data);
 			if (res.data.uids === null) {
-				SetinParticipate(1);
+				SetinAdded(1);
 			} else {
 				res.data.uids.map((item: string, index: number) => {
-					console.log(item, AuthState.user.uid);
 					if (item === AuthState.user.uid) {
-						SetinParticipate(2);
+						SetinAdded(2);
 						return 0;
 					}
+					SetinAdded(1);
 				});
 			}
-			console.log(res.data);
+
+			getUser(AuthState.user.uid).then((user_res) => {
+				if (res.data.history === null) {
+					SetinParticipate(1);
+				} else {
+					user_res.data.history.map((item: any, index: number) => {
+						console.log(item.name, res.data.name);
+
+						if (item.name === res.data.name) {
+							SetinParticipate(2);
+							return;
+						}
+						SetinParticipate(1);
+					});
+				}
+			});
 		});
 	};
 
@@ -61,17 +75,13 @@ const BoothDetail = () => {
 		if (!bid) {
 			return;
 		} else {
-			getCheck(AuthState.user.uid, bid as string).then((res) => {
-				console.log(res.data);
-				if (res.data.participate === true) {
-					SetinAdded(1);
-				} else {
-					SetinAdded(2);
-				}
-			});
 			refreshBoothInfo(bid as string);
 		}
-	}, [bid]);
+	}, [bid, AuthState]);
+
+	useEffect(() => {
+		console.log(inParticipate, inAdded);
+	}, [inParticipate, inAdded]);
 
 	return (
 		<Box ref={element_height_ref} overflow={"hidden"}>
@@ -232,7 +242,7 @@ const BoothDetail = () => {
 					>
 						부스목록
 					</Button>
-					{inParticipate === 1 && inAdded === 1 ? (
+					{inAdded === 1 && inParticipate === 1 ? (
 						<Button
 							fullWidth
 							disableRipple
@@ -250,6 +260,26 @@ const BoothDetail = () => {
 							}}
 						>
 							문제풀기
+						</Button>
+					) : null}
+					{inParticipate === 2 ? (
+						<Button
+							fullWidth
+							disableRipple
+							variant='contained'
+							color='primary'
+							disableElevation
+							sx={{
+								borderRadius: "10px",
+								color: "white",
+								fontSize: "16px",
+								fontWeight: "900",
+							}}
+							onClick={() => {
+								alert("이미 참여한 부스입니다.");
+							}}
+						>
+							참여한 부스
 						</Button>
 					) : null}
 				</Stack>

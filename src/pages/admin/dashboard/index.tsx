@@ -1,13 +1,15 @@
 import withAdminAuth from "@/utils/withAdminAuth";
 import Background from "@/components/background";
 import { Button, Chip, Divider, Typography } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/adminauth-slice";
 import { useRouter } from "next/router";
+import { RootState } from "@/store";
 
 const DashboardPage = () => {
 	const dispatch = useDispatch();
 	const router = useRouter();
+	const AdminAuthState = useSelector((state: RootState) => state.adminauth);
 
 	return (
 		<>
@@ -87,6 +89,22 @@ const DashboardPage = () => {
 				}}
 			>
 				문제 수정하기
+			</Button>
+			<Button
+				variant='contained'
+				disableElevation
+				color='inherit'
+				sx={{
+					mx: "20px",
+					width: "calc(100% - 40px)",
+					mt: "10px",
+					height: "50px",
+				}}
+				onClick={() => {
+					router.push(`/problem/${AdminAuthState.bid}`);
+				}}
+			>
+				문제 보기
 			</Button>
 			<Divider
 				sx={{

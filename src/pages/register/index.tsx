@@ -117,7 +117,7 @@ const RegisterPage = () => {
 					<CustomSelect
 						name='boothField'
 						label='부스 분야'
-						options={["메이커", "환경", "STEAM", "AI", "수학", "창업"]}
+						options={["메이커", "환경", "STEAM", "AI", "미디어", "창업"]}
 						value={formData}
 						onChange={(e: any) => {
 							setFormData(e.target.value);

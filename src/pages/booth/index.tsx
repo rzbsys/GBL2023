@@ -22,6 +22,8 @@ const BoothList = () => {
 	const [Loading, SetLoading] = useState(true);
 	const [OpenModal, SetOpenModal] = useState(false);
 	const [boothList, SetboothList] = useState([]);
+	const [Search, SetSearch] = useState("");
+	const [Available, SetAvailable] = useState(0);
 	const openQr = () => {
 		SetOpenModal(true);
 	};
@@ -31,17 +33,19 @@ const BoothList = () => {
 	};
 
 	const refreshBoothList = () => {
+		let avail = 0;
 		getBooths().then((res) => {
 			SetboothList(res.data.boothlist);
+			res.data.boothlist.map((item: any) => {
+				if (item.complexity === 0) {
+					avail = avail + 1;
+				}
+			});
+			SetAvailable(avail);
 		});
 	};
 
 	useEffect(() => {
-		refreshBoothList();
-
-		const getBoothInterval = setInterval(() => {
-			refreshBoothList();
-		}, 5000);
 		if (scrollPosition.scrollTop > 140) {
 			Setscrolled(true);
 		} else {
@@ -52,13 +56,19 @@ const BoothList = () => {
 				(scrollPosition.scrollHeight - scrollPosition.clientHeight)) *
 				100
 		);
-		return () => {
-			clearInterval(getBoothInterval);
-		};
 	}, [scrollPosition]);
 
 	useEffect(() => {
 		SetLoading(false);
+
+		refreshBoothList();
+
+		const getBoothInterval = setInterval(() => {
+			refreshBoothList();
+		}, 5000);
+		return () => {
+			clearInterval(getBoothInterval);
+		};
 	}, []);
 
 	return (
@@ -96,6 +106,10 @@ const BoothList = () => {
 						borderRadius: "10px",
 					}}
 					placeholder='부스명을 입력해주세요.'
+					value={Search}
+					onChange={(e) => {
+						SetSearch(e.target.value);
+					}}
 				></InputBase>
 
 				<Box
@@ -110,19 +124,16 @@ const BoothList = () => {
 					color={"rgb(100, 100, 100)"}
 					mt={"20px"}
 				>
-					체험가능 부스 : 0개
+					체험가능 부스 : {Available}개
 				</Box>
 
 				<Slide in={!Loading} direction='up' timeout={400}>
 					<Box>
-						{boothList.map((item, index) => (
-							<BoothItem item={item} key={index}></BoothItem>
-						))}
-						{/* {Array(50)
-							.fill(0)
-							.map((item, index) => (
-								<BoothItem boothid={index} key={index}></BoothItem>
-							))} */}
+						{boothList.map((item: any, index) =>
+							item.name.search(Search) !== -1 ? (
+								<BoothItem item={item} key={index}></BoothItem>
+							) : null
+						)}
 					</Box>
 				</Slide>
 			</AppLayout>

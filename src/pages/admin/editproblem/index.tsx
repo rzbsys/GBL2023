@@ -70,11 +70,12 @@ function ProblemPage() {
 	}, [PageNum]);
 
 	const problemData = {
-		problem_type: "주관식",
+		file_type: "PDF",
 		question: "",
 		answer: "",
 		score: 0,
 		pdf_url: "",
+		problem_type: "주관식",
 	};
 
 	const [Problems, SetProblems] = useState([
@@ -94,6 +95,7 @@ function ProblemPage() {
 	]);
 
 	const EditProblems = (idx: number, data: typeof problemData) => {
+		console.log(data);
 		let temp = [...Problems];
 		temp[idx] = data;
 		SetProblems(temp);
@@ -106,10 +108,11 @@ function ProblemPage() {
 	};
 
 	const onFileUpload = async () => {
+		let tempProblems = [...Problems];
 		await Promise.all(
 			UplaodFile.map(async (item, index) => {
-				const formData = new FormData();
 				if (item.size !== 0) {
+					const formData = new FormData();
 					formData.append("file", item);
 					await fileUpload(formData, (progress: number) => {
 						Setloading({
@@ -117,14 +120,15 @@ function ProblemPage() {
 							msg: `${index + 1}번째 파일 업로드중입니다.(${progress}%)`,
 						});
 					}).then((res) => {
-						EditProblems(index, {
-							...Problems[index],
+						tempProblems[index] = {
+							...tempProblems[index],
 							pdf_url: res.data.file,
-						});
+						};
 					});
 				}
 			})
 		);
+		return tempProblems;
 	};
 
 	const onSubmit = async () => {
@@ -134,12 +138,13 @@ function ProblemPage() {
 				is_loading: true,
 				msg: "파일 업로드 대기중",
 			});
-			onFileUpload().then((res) => {
-				makeProblems(AdminAuthState.bid, Problems).then((res) => {
+			onFileUpload().then((temp_prblems) => {
+				makeProblems(AdminAuthState.bid, temp_prblems).then((res) => {
 					alert("문제를 저장했습니다");
 					router.push("/admin/dashboard");
 				});
 			});
+			console.log(Problems);
 		}
 	};
 
@@ -224,85 +229,56 @@ function ProblemPage() {
 												});
 											}}
 										></CustomInput>
-										<CustomFileInput
-											text='문제해결에 필요한 pdf파일을 업로드해주세요.'
-											name='pdf_url'
-											filetype='pdf'
-											InputLabelProps={{
-												shrink: true,
-											}}
-											onChange={(file: File) => {
-												EditFiles(index, file);
-											}}
-										></CustomFileInput>
-										{/* <CustomSelect
-											name='problem_type'
-											label='문제 유형'
-											options={["주관식", "객관식"]}
-											value={Problems[index].problem_type}
+										<CustomSelect
+											name='file_type'
+											label='파일 유형'
+											options={["PDF", "동영상"]}
+											value={Problems[index].file_type}
 											onChange={(e: ChangeEvent<HTMLInputElement>) => {
 												EditProblems(index, {
 													...Problems[index],
-													problem_type: e.target.value,
+													file_type: e.target.value,
 												});
 											}}
-										></CustomSelect> */}
-										{Problems[index].problem_type === "주관식" ? (
-											<CustomInput
-												name='answer'
-												text='주관식 답을 입력해주세요.'
-												multiline
-												value={Problems[index].answer}
-												onChange={(e: ChangeEvent<HTMLInputElement>) => {
-													EditProblems(index, {
-														...Problems[index],
-														answer: e.target.value,
-													});
+										></CustomSelect>
+										{Problems[index].file_type === "PDF" ? (
+											<CustomFileInput
+												text='문제해결에 필요한 pdf파일을 업로드해주세요.'
+												name='pdf_url'
+												filetype='pdf'
+												InputLabelProps={{
+													shrink: true,
 												}}
-											></CustomInput>
+												onChange={(file: File) => {
+													EditFiles(index, file);
+												}}
+											></CustomFileInput>
 										) : (
-											<>
-												{/* {Array(4)
-													.fill(1)
-													.map((item, subindex) => {
-														return (
-															<CustomInput
-																key={subindex}
-																name='question'
-																text={`${subindex + 1}번 선택지`}
-																multiline
-																value={Problems[index].choices[subindex]}
-																onChange={(
-																	e: ChangeEvent<HTMLInputElement>
-																) => {
-																	let choices = [...Problems[index].choices];
-																	choices[subindex] = e.target.value;
-																	EditProblems(index, {
-																		...Problems[index],
-																		choices: choices,
-																	});
-																}}
-															></CustomInput>
-														);
-													})}
-
-												<CustomInput
-													name='answer'
-													text='객관식 답을 입력해주세요.'
-													multiline
-													value={Problems[index].answer}
-													onChange={(e: ChangeEvent<HTMLInputElement>) => {
-														EditProblems(index, {
-															...Problems[index],
-															answer: e.target.value,
-														});
-													}}
-												></CustomInput>
-												<Typography variant='body1' color='initial'>
-													숫자만 입력해주세요.(ex. 1)
-												</Typography> */}
-											</>
+											<CustomFileInput
+												text='문제해결에 필요한 video파일을 업로드해주세요.'
+												name='pdf_url'
+												filetype='video'
+												InputLabelProps={{
+													shrink: true,
+												}}
+												onChange={(file: File) => {
+													EditFiles(index, file);
+												}}
+											></CustomFileInput>
 										)}
+
+										<CustomInput
+											name='answer'
+											text='주관식 답을 입력해주세요.'
+											multiline
+											value={Problems[index].answer}
+											onChange={(e: ChangeEvent<HTMLInputElement>) => {
+												EditProblems(index, {
+													...Problems[index],
+													answer: e.target.value,
+												});
+											}}
+										></CustomInput>
 									</Stack>
 								</SwiperSlide>
 							);

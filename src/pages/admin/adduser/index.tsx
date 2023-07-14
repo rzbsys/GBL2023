@@ -119,7 +119,7 @@ const ScannedComponent = ({ data }: { data: any }) => {
 								});
 							}}
 						>
-							문제풀기
+							추가하기
 						</Button>
 					</Stack>
 				</Stack>

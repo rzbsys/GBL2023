@@ -34,12 +34,12 @@ export const CustomFileInput = ({
 	InputLabelProps: any;
 }) => {
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const maxSize = 50 * 1024 * 1024;
+		const maxSize = 500 * 1024 * 1024;
 
 		const file = event.target.files?.[0];
 		if (file) {
 			if (file.size > maxSize) {
-				alert("파일 용량이 50MB를 넘을 수 없습니다.");
+				alert("파일 용량이 500MB를 넘을 수 없습니다.");
 				event.target.value = "";
 			} else {
 				if (file.type.search(filetype) === -1) {
@@ -380,7 +380,7 @@ const MakeBoothPage = () => {
 					<CustomSelect
 						name='boothField'
 						label='부스 분야'
-						options={["메이커", "환경", "STEAM", "AI", "수학", "창업"]}
+						options={["메이커", "환경", "STEAM", "AI", "미디어", "창업"]}
 						value={formData.boothField}
 						onChange={handleChange}
 					></CustomSelect>

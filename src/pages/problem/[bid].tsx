@@ -72,6 +72,63 @@ const PdfComponent = ({ src, step }: { src: string; step: number }) => {
 	);
 };
 
+const VideoComponent = ({ src, step }: { src: string; step: number }) => {
+	const element_height_ref = useElementHeight();
+
+	return (
+		<Box ref={element_height_ref}>
+			<Typography
+				fontSize={"20px"}
+				pt={"35px"}
+				ml={"25px"}
+				fontWeight={900}
+				color={"rgb(230, 230, 230)"}
+			>
+				STEP{step * 2 + 1}
+			</Typography>
+			<Typography
+				fontSize={"25px"}
+				width={"calc(100% - 80px)"}
+				ml={"25px"}
+				mb={"20px"}
+				fontWeight={900}
+				color={"rgb(50, 50, 50)"}
+			>
+				아래 동영상을 참고하여 문제를 해결하세요.
+			</Typography>
+			{src === "" ? (
+				<Box
+					sx={{
+						width: "calc(100% - 100px)",
+						px: "30px",
+						py: "20px",
+						ml: "20px",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						borderRadius: "10px",
+						bgcolor: "rgb(240, 240, 240)",
+					}}
+				>
+					동영상 파일이 없습니다.
+				</Box>
+			) : (
+				<video
+					style={{
+						width: "calc(100% - 100px)",
+						marginLeft: "50px",
+						maxHeight: "70%",
+						marginTop: "20px",
+					}}
+					playsInline
+					controls
+					src={`/getfile/${src}`}
+				></video>
+			)}
+		</Box>
+	);
+};
+
 const SolveComponent = ({
 	step,
 	question,
@@ -187,6 +244,7 @@ function ProblemPage() {
 	const [SwiperInstance, setSwiperInstance] = useState<any>(null);
 	const [PageNum, SetPageNum] = useState(0);
 	const AuthState = useSelector((state: RootState) => state.auth);
+	const AdminAuthState = useSelector((state: RootState) => state.adminauth);
 	const [BoothInfo, SetBoothInfo] = useState({
 		name: "",
 	});
@@ -209,6 +267,7 @@ function ProblemPage() {
 
 	const refreshProblemsInfo = (bid: string) => {
 		getProblem(bid).then((res) => {
+			console.log(res.data.problems);
 			SetProblemsInfo(res.data.problems);
 			Setloading({
 				...loading,
@@ -288,7 +347,14 @@ function ProblemPage() {
 					return (
 						<Fragment key={index}>
 							<SwiperSlide key={index + "a"}>
-								<PdfComponent step={index} src={item.pdf_url}></PdfComponent>
+								{item.question.search("(동영상)") === -1 ? (
+									<PdfComponent step={index} src={item.pdf_url}></PdfComponent>
+								) : (
+									<VideoComponent
+										step={index}
+										src={item.pdf_url}
+									></VideoComponent>
+								)}
 							</SwiperSlide>
 							<SwiperSlide key={index + "b"}>
 								<SolveComponent
@@ -299,7 +365,7 @@ function ProblemPage() {
 										SetAnswerList(temp);
 									}}
 									step={index}
-									question={item.question}
+									question={item.question.replace("(동영상)", "")}
 									score={item.score}
 								></SolveComponent>
 							</SwiperSlide>
@@ -330,7 +396,12 @@ function ProblemPage() {
 					text={PageNum === ProblemsInfo.length * 2 ? "제출하기" : "다음"}
 					onClick={() => {
 						if (PageNum === ProblemsInfo.length * 2) {
-							if (confirm("답안을 제출하시겠습니까?")) {
+							if (AdminAuthState.is_logined) {
+								alert("부스 담당자는 문제를 풀 수 없습니다.");
+								if (confirm("이전 페이지로 이동하시겠습니까?")) {
+									router.push("/admin/dashboard");
+								}
+							} else if (confirm("답안을 제출하시겠습니까?")) {
 								Setloading({
 									...loading,
 									is_loading: true,

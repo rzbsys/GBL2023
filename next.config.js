@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
+
+const withPlugins = require("next-compose-plugins");
+const withPWA = require("next-pwa");
+
 const nextConfig = {
 	images: {
 		remotePatterns: [
@@ -23,4 +27,17 @@ const nextConfig = {
 	reactStrictMode: false,
 };
 
-module.exports = nextConfig;
+module.exports = withPlugins(
+	[
+		[
+			withPWA,
+			{
+				pwa: {
+					dest: "public",
+					register: true,
+				},
+			},
+		],
+	],
+	nextConfig
+);

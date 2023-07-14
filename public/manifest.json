@@ -7,20 +7,11 @@
 	"name": "GBL2023",
 	"short_name": "GBL2023",
 	"description": "DSHS GBL2023",
+	"language": "ko-KR",
 	"icons": [
-		{
-			"src": "/icon-192x192.png",
-			"sizes": "192x192",
-			"type": "image/png"
-		},
 		{
 			"src": "/icon-256x256.png",
 			"sizes": "256x256",
-			"type": "image/png"
-		},
-		{
-			"src": "/icon-384x384.png",
-			"sizes": "384x384",
 			"type": "image/png"
 		},
 		{

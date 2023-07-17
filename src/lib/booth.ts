@@ -39,3 +39,11 @@ export const getCheck = (uid: string, bid: string) => {
 	});
 	return res;
 };
+
+export const changeComplexity = (bid: string, complexity: number) => {
+	const res = axios.patch("/api/booth/complexity", {
+		bid: bid,
+		complexity: complexity,
+	});
+	return res;
+};

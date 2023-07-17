@@ -19,7 +19,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper.min.css";
 import CustomizedSteppers from "@/components/stepper";
 import PdfViwer from "@/components/pdfviwer";
-import { getBooth } from "@/lib/booth";
+import { changeComplexity, getBooth } from "@/lib/booth";
 import { getProblem, submitAnswer } from "@/lib/problems";
 import LoadingPage from "@/components/loading";
 import { useSelector } from "react-redux";
@@ -412,9 +412,11 @@ function ProblemPage() {
 									AuthState.user.uid,
 									AnswerList
 								).then((res) => {
-									console.log(res);
-									alert("채점이 완료되었습니다.");
-									router.push("/booth");
+									changeComplexity(bid as string, 0).then(() => {
+										console.log(res);
+										alert("채점이 완료되었습니다.");
+										router.push("/booth");
+									});
 								});
 							}
 						} else {

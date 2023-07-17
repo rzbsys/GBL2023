@@ -28,40 +28,7 @@ const BoothDetail = () => {
 	const [inAdded, SetinAdded] = useState(0);
 	const AuthState = useSelector((state: RootState) => state.auth);
 
-	const refreshBoothInfo = (booth_id: string) => {
-		getBooth(booth_id as string).then((res) => {
-			console.log(res.data);
-
-			SetBoothInfo(res.data);
-			if (res.data.uids === null) {
-				SetinAdded(1);
-			} else {
-				res.data.uids.map((item: string, index: number) => {
-					if (item === AuthState.user.uid) {
-						SetinAdded(2);
-						return 0;
-					}
-					SetinAdded(1);
-				});
-			}
-
-			// getUser(AuthState.user.uid).then((user_res) => {
-			// 	if (res.data.history === null) {
-			// 		SetinParticipate(1);
-			// 	} else {
-			// 		user_res.data.history.map((item: any, index: number) => {
-			// 			console.log(item.name, res.data.name);
-
-			// 			if (item.name === res.data.name) {
-			// 				SetinParticipate(2);
-			// 				return;
-			// 			}
-			// 			SetinParticipate(1);
-			// 		});
-			// 	}
-			// });
-		});
-	};
+	const refreshBoothInfo = (booth_id: string) => {};
 
 	useEffect(() => {
 		if (scrollPosition.scrollTop > 3) {
@@ -75,7 +42,37 @@ const BoothDetail = () => {
 		if (!bid) {
 			return;
 		} else {
-			refreshBoothInfo(bid as string);
+			getBooth(bid as string).then((booth_res) => {
+				SetBoothInfo(booth_res.data);
+				getCheck(AuthState.user.uid, bid as string).then((check_res) => {
+					if (check_res.data.participate) {
+						SetinAdded(1);
+					} else {
+						SetinAdded(2);
+					}
+					var hasValueLessThanTen = false;
+
+					getUser(AuthState.user.uid).then((user_res) => {
+						if (user_res.data.history === null) {
+							SetinParticipate(1);
+						} else {
+							user_res.data.history.map((item: any, index: number) => {
+								if (!hasValueLessThanTen) {
+									console.log("da", item.name, booth_res.data.name);
+
+									if (item.name == booth_res.data.name) {
+										SetinParticipate(2);
+										hasValueLessThanTen = true;
+									}
+								}
+							});
+							if (!hasValueLessThanTen) {
+								SetinParticipate(1);
+							}
+						}
+					});
+				});
+			});
 		}
 	}, [bid, AuthState]);
 

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/adminauth-slice";
 import { useRouter } from "next/router";
 import { RootState } from "@/store";
+import { changeComplexity } from "@/lib/booth";
 
 const DashboardPage = () => {
 	const dispatch = useDispatch();
@@ -106,6 +107,55 @@ const DashboardPage = () => {
 			>
 				문제 보기
 			</Button>
+			<Divider
+				sx={{
+					mt: "20px",
+					mb: "10px",
+					width: "calc(100% - 40px)",
+					mx: "20px",
+				}}
+			>
+				<Chip label='상태바꾸기' />
+			</Divider>
+			<Typography fontWeight={500} variant='body1' ml={"25px"}>
+				상태바꾸기
+			</Typography>
+			<Button
+				variant='contained'
+				disableElevation
+				sx={{
+					mx: "20px",
+					width: "calc(100% - 40px)",
+					mt: "10px",
+					height: "50px",
+					color: "white",
+				}}
+				onClick={() => {
+					changeComplexity(AdminAuthState.bid, 0);
+					alert("변경되었습니다.");
+				}}
+			>
+				원활로 바꾸기
+			</Button>
+			<Button
+				variant='contained'
+				disableElevation
+				sx={{
+					mx: "20px",
+					width: "calc(100% - 40px)",
+					mt: "10px",
+					height: "50px",
+					color: "white",
+				}}
+				onClick={() => {
+					changeComplexity(AdminAuthState.bid, 1).then(() => {
+						alert("변경되었습니다.");
+					});
+				}}
+			>
+				체험중으로 바꾸기
+			</Button>
+
 			<Divider
 				sx={{
 					mt: "20px",

@@ -8,7 +8,7 @@ import { CircularProgress } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import LogoImage from "@/assets/img/logo.svg";
 import Image from "next/image";
-import { addUser } from "@/lib/booth";
+import { addUser, changeComplexity } from "@/lib/booth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import LoadingPage from "@/components/loading";
@@ -113,9 +113,11 @@ const ScannedComponent = ({ data }: { data: any }) => {
 									msg: "부스 참가자 추가중",
 								});
 								addUser(data.uid, AdminAuthState.bid).then((res) => {
-									alert("참가자가 추가되었습니다.");
-									router.push("/admin/dashboard");
-									console.log(res);
+									changeComplexity(data.bid, 1).then(() => {
+										alert("참가자가 추가되었습니다.");
+										router.push("/admin/dashboard");
+										console.log(res);
+									});
 								});
 							}}
 						>

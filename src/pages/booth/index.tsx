@@ -15,7 +15,7 @@ import ProgressBar from "@/components/progressbar";
 import withAuth from "@/utils/withAuth";
 import { getBooths } from "@/lib/booth";
 
-const BoothList = () => {
+const BoothListPage = () => {
 	const { scrollRef, scrollPosition } = useScroll(0);
 	const [scrolled, Setscrolled] = useState(false);
 	const [progress, Setprogress] = useState(0);
@@ -36,6 +36,7 @@ const BoothList = () => {
 		let avail = 0;
 		getBooths().then((res) => {
 			SetboothList(res.data.boothlist);
+			console.log(res.data.boothlist);
 			res.data.boothlist.map((item: any) => {
 				if (item.complexity === 0) {
 					avail = avail + 1;
@@ -130,7 +131,12 @@ const BoothList = () => {
 				<Slide in={!Loading} direction='up' timeout={400}>
 					<Box>
 						{boothList.map((item: any, index) =>
-							item.name.search(Search) !== -1 ? (
+							item.name.search(Search) !== -1 && item.complexity === 0 ? (
+								<BoothItem item={item} key={index}></BoothItem>
+							) : null
+						)}
+						{boothList.map((item: any, index) =>
+							item.name.search(Search) !== -1 && item.complexity === 1 ? (
 								<BoothItem item={item} key={index}></BoothItem>
 							) : null
 						)}
@@ -141,4 +147,4 @@ const BoothList = () => {
 	);
 };
 
-export default withAuth(BoothList);
+export default withAuth(BoothListPage);

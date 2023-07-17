@@ -1,19 +1,20 @@
 import withAdminAuth from "@/utils/withAdminAuth";
 import Background from "@/components/background";
-import { Button, Chip, Divider, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/adminauth-slice";
 import { useRouter } from "next/router";
 import { RootState } from "@/store";
 import { changeComplexity } from "@/lib/booth";
+import useElementHeight from "@/hooks/useElementHeight";
 
 const DashboardPage = () => {
 	const dispatch = useDispatch();
 	const router = useRouter();
 	const AdminAuthState = useSelector((state: RootState) => state.adminauth);
-
+	const element_height_ref = useElementHeight();
 	return (
-		<>
+		<Box ref={element_height_ref} overflow={"scroll"}>
 			<Background></Background>
 			<Typography
 				fontSize={"20px"}
@@ -188,7 +189,7 @@ const DashboardPage = () => {
 			>
 				로그아웃
 			</Button>
-		</>
+		</Box>
 	);
 };
 

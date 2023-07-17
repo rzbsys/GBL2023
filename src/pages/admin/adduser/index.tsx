@@ -112,8 +112,8 @@ const ScannedComponent = ({ data }: { data: any }) => {
 									is_loading: true,
 									msg: "부스 참가자 추가중",
 								});
-								addUser(AdminAuthState.bid, AdminAuthState.bid).then((res) => {
-									changeComplexity(data.bid, 1).then(() => {
+								addUser(data.uid, AdminAuthState.bid).then((res) => {
+									changeComplexity(AdminAuthState.bid, 1).then(() => {
 										alert("참가자가 추가되었습니다.");
 										router.push("/admin/dashboard");
 										console.log(res);

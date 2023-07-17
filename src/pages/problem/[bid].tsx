@@ -248,7 +248,6 @@ function ProblemPage() {
 	const [BoothInfo, SetBoothInfo] = useState({
 		name: "",
 	});
-
 	const [ProblemsInfo, SetProblemsInfo] = useState<ProblemType[]>([]);
 	const [AnswerList, SetAnswerList] = useState<string[]>([]);
 	const router = useRouter();

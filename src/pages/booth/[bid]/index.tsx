@@ -28,7 +28,7 @@ const BoothDetail = () => {
 	const [inAdded, SetinAdded] = useState(0);
 	const AuthState = useSelector((state: RootState) => state.auth);
 
-	const refreshBoothInfo = (booth_id: string) => {};
+	const [ButtonShown, SetButtonShown] = useState(false);
 
 	useEffect(() => {
 		if (scrollPosition.scrollTop > 3) {
@@ -79,6 +79,12 @@ const BoothDetail = () => {
 	useEffect(() => {
 		console.log(inParticipate, inAdded);
 	}, [inParticipate, inAdded]);
+
+	useEffect(() => {
+		setTimeout(() => {
+			SetButtonShown(true);
+		}, 500);
+	}, []);
 
 	return (
 		<Box ref={element_height_ref} overflow={"hidden"}>
@@ -239,7 +245,7 @@ const BoothDetail = () => {
 					>
 						부스목록
 					</Button>
-					{inAdded !== 2 && inParticipate !== 2 ? (
+					{inAdded !== 2 && inParticipate !== 2 && ButtonShown ? (
 						<Button
 							fullWidth
 							disableRipple

@@ -45,21 +45,21 @@ const BoothDetail = () => {
 				});
 			}
 
-			getUser(AuthState.user.uid).then((user_res) => {
-				if (res.data.history === null) {
-					SetinParticipate(1);
-				} else {
-					user_res.data.history.map((item: any, index: number) => {
-						console.log(item.name, res.data.name);
+			// getUser(AuthState.user.uid).then((user_res) => {
+			// 	if (res.data.history === null) {
+			// 		SetinParticipate(1);
+			// 	} else {
+			// 		user_res.data.history.map((item: any, index: number) => {
+			// 			console.log(item.name, res.data.name);
 
-						if (item.name === res.data.name) {
-							SetinParticipate(2);
-							return;
-						}
-						SetinParticipate(1);
-					});
-				}
-			});
+			// 			if (item.name === res.data.name) {
+			// 				SetinParticipate(2);
+			// 				return;
+			// 			}
+			// 			SetinParticipate(1);
+			// 		});
+			// 	}
+			// });
 		});
 	};
 
@@ -242,7 +242,7 @@ const BoothDetail = () => {
 					>
 						부스목록
 					</Button>
-					{inAdded === 1 && inParticipate === 1 ? (
+					{inAdded !== 2 && inParticipate !== 2 ? (
 						<Button
 							fullWidth
 							disableRipple
